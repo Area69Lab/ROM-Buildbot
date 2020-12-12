@@ -1,11 +1,23 @@
 version: 2.1
 jobs:
-  compile:
-   machine:
-      image: ubuntu-1604:201903-01 
-
+  build:
+    docker:
+      - image: fr3akyphantom/droid-builder:latest
+    environment:
+      MANIFEST_BRANCH: 'android-9.0'
+      VERSION: '3.0.0'
+      MAINTAINER: '@TechyMinati'
+      VENDOR: 'realme'
+      CODENAME: 'RMX1831'
+      FLAVOR: 'eng'
+      #TEST_BUILD: 'true'
+      PB_OFFICIAL: 'true'
+      CHANGELOG: |
+        - Initial Build
+    working_directory: /home/builder/pitchblack
     steps:
       - run:
+          name: AIO Build
           command: |
             lshw -short
             df -h 
@@ -20,9 +32,12 @@ jobs:
            git clone --depth=1 --single-branch https://github.com/Pulkit077/vendor_xiaomi_rosy vendor/xiaomi/rosy
            git clone --depth=1 --single-branch https://github.com/Pulkit077/kernel_xiaomi_rosy kenrel/xiaomi/rosy 
            . build/envsetup.sh &&brunch rosy
-                         
 workflows:
   version: 2.1
-  cooking:
+  build_and_test:
     jobs:
-      - compile
+      - build:
+          filters:
+            branches:
+              only: 'android-9.0'
+          context: org-global
